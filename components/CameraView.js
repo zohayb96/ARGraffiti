@@ -28,14 +28,10 @@ export default class CameraView extends Component {
     this.state = {
       color: { h: 0, s: 0, v: 200 },
       hexColor: '#ff00000',
-      latitude: null,
-      longitude: null,
       shape: 'cube',
       size: 'small',
       hideButtons: true,
-      coverPhoto: null,
     };
-    this.model = null;
     this.graffitiObjects = [];
     this.timer = null;
     this.findColor = this.findColor.bind(this);
@@ -95,6 +91,8 @@ export default class CameraView extends Component {
       return 0.04;
     } else if (this.state.size === 'large') {
       return 0.06;
+    } else if (this.state.size === 'xlarge') {
+      return 0.1;
     } else {
       return 0.02;
     }
@@ -105,6 +103,24 @@ export default class CameraView extends Component {
       return new THREE.SphereGeometry(sizeToUse, 32, 32);
     } else if (this.state.shape === 'pyramid') {
       return new THREE.TetrahedronBufferGeometry(sizeToUse, 0);
+    } else if (this.state.shape === 'icosahedron') {
+      return new THREE.IcosahedronGeometry(sizeToUse, 0);
+    } else if (this.state.shape === 'octahedron') {
+      return new THREE.OctahedronGeometry(sizeToUse, 0);
+    } else if (this.state.shape === 'ring') {
+      return new THREE.TorusGeometry(
+        sizeToUse,
+        sizeToUse / 4,
+        sizeToUse / 2,
+        100
+      );
+    } else if (this.state.shape === 'knot') {
+      return new THREE.TorusKnotBufferGeometry(
+        sizeToUse,
+        sizeToUse / 3,
+        100,
+        sizeToUse * 8
+      );
     } else {
       return new THREE.BoxGeometry(sizeToUse, sizeToUse, sizeToUse);
     }
@@ -117,19 +133,20 @@ export default class CameraView extends Component {
   generateLighting(scene) {
     const leftLight = new THREE.DirectionalLight(0xffffff);
     const rightLight = new THREE.DirectionalLight(0xffffff);
-    // const frontLight = new THREE.DirectionalLight(0xffffff);
-    // leftLight.position.set(-3, 5, 0).normalize();
-    // rightLight.position.set(3, 5, 0).normalize();
-    // frontLight.position.set(0, 0, 0).normalize();
+    const frontLight = new THREE.DirectionalLight(0xffffff);
+    const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
+    const plight = new THREE.PointLight(0x000000, 1, 100);
+    const ambLight = new THREE.AmbientLight(0x404040);
+    leftLight.position.set(-3, 5, 0).normalize();
+    rightLight.position.set(3, 5, 0).normalize();
+    frontLight.position.set(0, 0, 0).normalize();
+    plight.position.set(50, 50, 50);
     this.scene.add(leftLight);
     this.scene.add(rightLight);
-    // this.scene.add(frontLight);
-    const light = new THREE.HemisphereLight(0xffffbb, 0x080820, 1);
-    this.scene.add(new THREE.AmbientLight(0x404040));
-    this.scene.add(light);
-    var plight = new THREE.PointLight(0x000000, 1, 100);
-    plight.position.set(50, 50, 50);
+    this.scene.add(frontLight);
+    this.scene.add(ambLight);
     this.scene.add(plight);
+    this.scene.add(light);
   }
 
   async addShapeWithSize() {
@@ -140,25 +157,15 @@ export default class CameraView extends Component {
       color: colorToUse,
       transparent: true,
       specular: 0x555555,
-      opacity: 9.0,
+      opacity: 1.0,
       shininess: 100,
     });
     const mesh = new THREE.Mesh(objectToRender, material);
-    // const newItem = setModelPos(mesh, this.camera.position);
-    // console.log(this.camera.position);
-    // console.log('CAM POSITION: ', this.camera.position);
-    // newItem.applyQuaternion(this.camera.quaternion);
-    // mesh.position.copy(vec);
-    // newItem.position.z -= 0.2;no
-    // this.scene.add(newItem);
-    // newItem.position.copy(this.vector);
-    // console.log(newItem.position);
-    // this.scene.add(newItem);
-    var pLocal = new THREE.Vector3(0, 0, -0.2);
-    var target = pLocal.applyMatrix4(this.camera.matrixWorld);
-    mesh.position.copy(target);
-    // mesh.lookAt(this.camera.position);
+    const drawPoint = new THREE.Vector3(0, 0, -0.35);
+    const targetPosition = drawPoint.applyMatrix4(this.camera.matrixWorld);
+    mesh.position.copy(targetPosition);
     mesh.rotator = 0.025;
+    mesh.lookAt(this.camera.position);
     this.scene.add(mesh);
     this.graffitiObjects.push(mesh);
     this.timer = setTimeout(this.addShapeWithSize, 50);
@@ -216,6 +223,18 @@ export default class CameraView extends Component {
               <MenuItem onPress={() => this.setState({ shape: 'pyramid' })}>
                 Pyramid
               </MenuItem>
+              <MenuItem onPress={() => this.setState({ shape: 'icosahedron' })}>
+                Icosahedron
+              </MenuItem>
+              <MenuItem onPress={() => this.setState({ shape: 'octahedron' })}>
+                Octahedron
+              </MenuItem>
+              <MenuItem onPress={() => this.setState({ shape: 'ring' })}>
+                Ring
+              </MenuItem>
+              {/* <MenuItem onPress={() => this.setState({ shape: 'knot' })}>
+                knot
+              </MenuItem> */}
             </Menu>
           </View>
         )}
@@ -246,6 +265,9 @@ export default class CameraView extends Component {
               </MenuItem>
               <MenuItem onPress={() => this.setState({ size: 'large' })}>
                 Large
+              </MenuItem>
+              <MenuItem onPress={() => this.setState({ size: 'xlarge' })}>
+                X-Large
               </MenuItem>
             </Menu>
             <TouchableOpacity
@@ -302,8 +324,8 @@ export default class CameraView extends Component {
     );
 
     // Rotation
-    this.vector = new THREE.Vector3(0, 0, 0);
-    this.vector.applyQuaternion(this.camera.quaternion);
+    // this.vector = new THREE.Vector3(0, 0, 0);
+    // this.vector.applyQuaternion(this.camera.quaternion);
 
     const renderer = ExpoTHREE.createRenderer({ gl });
     renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -314,7 +336,7 @@ export default class CameraView extends Component {
     );
 
     // Camera helper
-    var helper = new THREE.CameraHelper(this.camera);
+    const helper = new THREE.CameraHelper(this.camera);
     this.scene.add(helper);
 
     this.generateLighting(this.scene);
@@ -322,32 +344,31 @@ export default class CameraView extends Component {
     const animate = () => {
       this.gameRequest = requestAnimationFrame(animate);
       this.camera.position.setFromMatrixPosition(this.camera.matrixWorld);
-      const cameraPos = new THREE.Vector3(
-        this.camera.position.x,
-        this.camera.position.y,
-        this.camera.position.z
-      );
-      const fourthDimensionCamera = cameraPos.applyMatrix4(
-        this.camera.matrixWorld
-      );
-
-      this.cameraWorldDirection = this.camera.getWorldDirection(this.vector);
-      // console.log('this.cameraWorldDirection: ', this.cameraWorldDirection);
-      this.xAngle = THREE.Math.radToDeg(
-        Math.atan2(this.cameraWorldDirection.x, this.cameraWorldDirection.z)
-      );
-      this.yAngle = THREE.Math.radToDeg(
-        Math.atan2(this.cameraWorldDirection.y, this.cameraWorldDirection.z)
-      );
-      // console.log('x:', this.xAngle, 'y:', this.yAngle);
       this.graffitiObjects.forEach(art => {
         art.castShadow = true;
+        art.rotation.x += art.rotator;
+        art.rotation.y += art.rotator;
         // Fire objects like a gun lol ==>
         // art.position.z -= 0.01;
         // Animates items for live movement
-        art.rotation.x += art.rotator;
-        art.rotation.y += art.rotator;
       });
+      // const cameraPos = new THREE.Vector3(
+      //   this.camera.position.x,
+      //   this.camera.position.y,
+      //   this.camera.position.z
+      // );
+      // const fourthDimensionCamera = cameraPos.applyMatrix4(
+      //   this.camera.matrixWorld
+      // );
+
+      // this.cameraWorldDirection = this.camera.getWorldDirection(this.vector);
+      // this.xAngle = THREE.Math.radToDeg(
+      //   Math.atan2(this.cameraWorldDirection.x, this.cameraWorldDirection.z)
+      // );
+      // this.yAngle = THREE.Math.radToDeg(
+      //   Math.atan2(this.cameraWorldDirection.y, this.cameraWorldDirection.z)
+      // );
+      // console.log('x:', this.xAngle, 'y:', this.yAngle);
 
       renderer.render(this.scene, this.camera);
       gl.endFrameEXP();
@@ -366,7 +387,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: height - 700,
     left: width / 2 + 100,
-    zIndex: 999,
+    // zIndex: 999,
   },
   size: {
     justifyContent: 'center',
@@ -389,46 +410,12 @@ const styles = StyleSheet.create({
     top: height - 100,
     left: width / 2 - 25,
   },
-  dropView: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    top: height - 200,
-    left: width / 2 - 200,
-  },
   colorPicker: {
     position: 'absolute',
     top: height - 80,
     left: width / 2 - 130,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  badge: {
-    position: 'absolute',
-    top: 17,
-    left: 10,
-  },
-  items: {
-    position: 'absolute',
-    top: 60,
-    left: 25,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 8,
-    marginRight: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 20,
-  },
-  drawButton: {
-    backgroundColor: 'black',
-    opacity: 0.4,
-    width: 100,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
   },
   undoButton: {
     opacity: 0.6,
@@ -446,20 +433,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
   },
-  shapeButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    top: height - 400,
-    left: width / 2 + 105,
-  },
 });
 
-function setModelPos(model, dropPos) {
-  const item = model.clone();
-  item.position.x = dropPos.x;
-  item.position.y = dropPos.y;
-  item.position.z = dropPos.z;
-  item.rotator = 0.025;
-  return item;
-}
+// function setModelPos(model, dropPos) {
+//   const item = model.clone();
+//   item.position.x = dropPos.x;
+//   item.position.y = dropPos.y;
+//   item.position.z = dropPos.z;
+//   item.rotator = 0.025;
+//   return item;
+// }

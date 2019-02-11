@@ -1,0 +1,99 @@
+{
+  "object": {
+    "type": "Scene",
+    "uuid": "2C32F256-94D2-4FB6-B608-C3B82A1F5BAA",
+    "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    "children": [
+      {
+        "type": "Mesh",
+        "uuid": "AB906DBF-1010-41A2-8B65-5B35418332FC",
+        "matrix": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        "geometry": "C1764812-7769-46E1-8DE4-4D31623A7E14",
+        "material": "90AF44AD-DE98-4379-9CBD-FD11AC11C004"
+      },
+      {
+        "type": "Mesh",
+        "uuid": "5BBBDCD7-2B5B-4229-ACF1-B503CF0E753F",
+        "matrix": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          -0.14159243711508726,
+          -0.061628055347717196,
+          -0.26774275648876267,
+          1
+        ],
+        "geometry": "AAE12EAB-BEFC-48CC-A244-C14897068E1B",
+        "material": "E0D72D12-E88F-49E5-852B-4AE108A0F405"
+      }
+    ],
+    "background": {
+      "name": "",
+      "uuid": "84FC0CF8-0755-45B4-B4D5-94FA50CD9FCB",
+      "wrap": [1001, 1001],
+      "flipY": true,
+      "center": [0, 0],
+      "format": 1023,
+      "offset": [0, 0],
+      "repeat": [1, 1],
+      "mapping": 300,
+      "metadata": {
+        "type": "Texture",
+        "version": 4.5,
+        "generator": "Texture.toJSON"
+      },
+      "rotation": 0,
+      "magFilter": 1006,
+      "minFilter": 1008,
+      "anisotropy": 1
+    }
+  },
+  "metadata": {
+    "type": "Object",
+    "version": 4.5,
+    "generator": "Object3D.toJSON"
+  },
+  "materials": [
+    {
+      "type": "MeshBasicMaterial",
+      "uuid": "90AF44AD-DE98-4379-9CBD-FD11AC11C004",
+      "color": 4992721,
+      "depthFunc": 3,
+      "depthTest": true,
+      "depthWrite": true
+    },
+    {
+      "type": "MeshBasicMaterial",
+      "uuid": "E0D72D12-E88F-49E5-852B-4AE108A0F405",
+      "color": 4992721,
+      "depthFunc": 3,
+      "depthTest": true,
+      "depthWrite": true
+    }
+  ],
+  "geometries": [
+    {
+      "type": "BoxGeometry",
+      "uuid": "C1764812-7769-46E1-8DE4-4D31623A7E14",
+      "depth": 0.1,
+      "width": 0.1,
+      "height": 0.1
+    },
+    {
+      "type": "BoxGeometry",
+      "uuid": "AAE12EAB-BEFC-48CC-A244-C14897068E1B",
+      "depth": 0.1,
+      "width": 0.1,
+      "height": 0.1
+    }
+  ]
+}
